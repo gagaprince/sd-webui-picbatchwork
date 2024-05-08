@@ -80,12 +80,11 @@ def getTagsFromImage(image, isImage, invoke_tagger_val, common_invoke_tagger):
 # common_invoke_tagger 公共提示词
 def process_pic(p, originPics, invoke_tagger, invoke_tagger_val, common_invoke_tagger, des_enabled,des_width,des_height,upscaler_name):
     print('originPics:', originPics)
-    images = originPics
-    if not images:
+    if not originPics:
         print('Failed to parse the video, please check')
         return
-    print(f'The video conversion is completed, images:{len(images)}')
-    max_frames = len(images)
+    print(f'The video conversion is completed, images:{len(originPics)}')
+    max_frames = len(originPics)
 
     p.do_not_save_grid = True
     state.job_count = max_frames
@@ -101,7 +100,7 @@ def process_pic(p, originPics, invoke_tagger, invoke_tagger_val, common_invoke_t
     now = int(now)
     outDir = os.path.join(pic_output_dir, str(now))
 
-    for i, image in enumerate(images):
+    for i, image in enumerate(originPics):
         if i >= max_frames:
             break
         state.job = f"{i + 1} out of {max_frames}"
@@ -111,7 +110,10 @@ def process_pic(p, originPics, invoke_tagger, invoke_tagger_val, common_invoke_t
         if state.interrupted:
             break
 
-        img = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB), 'RGB')
+        print(image)
+        image = cv2.imread(image)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        img = Image.fromarray(image, 'RGB')
         img = ImageOps.exif_transpose(img)
 
         # 修改prompt
